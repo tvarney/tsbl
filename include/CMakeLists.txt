@@ -1,0 +1,11 @@
+
+set(INCLUDE_TSBL
+  include/tsbl/interpreter.hpp
+)
+
+set(INCLUDE_LIB
+  ${INCLUDE_TSBL}
+)
+
+set(INCLUDE_TSBL ${INCLUDE_TSBL} PARENT_SCOPE)
+set(INCLUDE_LIB ${INCLUDE_TSBL} PARENT_SCOPE)
