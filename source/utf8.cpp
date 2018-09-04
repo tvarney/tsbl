@@ -2,9 +2,28 @@
 #include "tsbl/utf8.hpp"
 
 #include <cstdio>
+#define UTF8PROC_STATIC
 #include "utf8proc.h"
 
 using namespace tsbl;
+
+static const char * _g_category_id[] = {
+    "CN", "LU", "LL", "LT", "LM", "LO", "MN", "MC", "ME", "ND", "NL", "NO",
+    "PC", "PD", "PS", "PE", "PI", "PF", "PO", "SM", "SC", "SK", "SO", "ZS",
+    "ZL", "ZP", "CC", "CF", "CS", "CO"
+};
+static const char * _g_category_name[] = {
+    "Unassigned", "Letter, Uppercase", "Letter, Lowercase",
+    "Letter, Titlecase", "Letter, Modifier", "Letter, Other",
+    "Mark, Nonspacing", "Mark, Spacing Combining", "Mark, Enclosing",
+    "Number, Decimal", "Number, Letter", "Number, Other",
+    "Punctuation, Connector", "Punctuation, Dash", "Punctuation, Open",
+    "Punctuation, Close", "Punctuation, Initial Quote",
+    "Punctuation, Final Quote", "Punctuation, Other", "Symbol, Math",
+    "Symbol, Currency", "Symbol, Modifier", "Symbol, Other",
+    "Seperator, Space", "Seperator, Line", "Seperator, Paragraph",
+    "Control", "Format", "Surrogate", "Private, Other"
+};
 
 const utf8::codepoint_t utf8::Codepoint::EndOfFile;
 const utf8::codepoint_t utf8::Codepoint::StartOfFile;
@@ -12,6 +31,12 @@ const utf8::codepoint_t utf8::Codepoint::Invalid;
 
 utf8::Category utf8::category(utf8::codepoint_t codepoint) {
 	return static_cast<utf8::Category>(utf8proc_category(codepoint));
+}
+const char * utf8::category_id(utf8::Category cat) {
+    return _g_category_id[cat];
+}
+const char * utf8::category_name(utf8::Category cat) {
+    return _g_category_name[cat];
 }
 
 std::pair<intmax_t, utf8::codepoint_t>

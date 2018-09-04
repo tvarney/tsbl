@@ -79,6 +79,8 @@ namespace tsbl::utf8 {
 	};
 
 	Category category(codepoint_t);
+    const char * category_id(Category cat);
+    const char * category_name(Category cat);
 	std::pair<intmax_t, codepoint_t>
 		iterate(const uint8_t *string, int32_t strlen);
 
