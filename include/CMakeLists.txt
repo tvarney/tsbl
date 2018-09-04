@@ -1,6 +1,7 @@
 
 set(INCLUDE_TSBL
   include/tsbl/interpreter.hpp
+  include/tsbl/utf8.hpp
 )
 
 set(INCLUDE_LIB
