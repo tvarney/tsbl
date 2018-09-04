@@ -1,6 +1,7 @@
 
 set(SOURCE_TSBL
   ./source/interpreter.cpp
+  ./source/lexer.cpp
   ./source/utf8.cpp
 )
 
