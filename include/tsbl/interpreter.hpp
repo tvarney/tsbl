@@ -11,7 +11,8 @@ namespace tsbl {
         Interpreter();
         ~Interpreter();
 
-		int32_t category(int32_t codepoint) const;
+    private:
+        
     };
 }
 
