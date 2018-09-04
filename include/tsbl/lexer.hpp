@@ -4,6 +4,7 @@
 #define TSBL_LEXER_HPP
 
 #include <stdint.h>
+#include <string>
 #include "tsbl/utf8.hpp"
 
 namespace tsbl {
@@ -75,20 +76,43 @@ namespace tsbl {
             LongString,    //< (""" """)|(''' ''')
             Identifier,    //< [_a-zA-Z][_a-zA-Z0-9]*  <-- Use character categories
 
-            // Errprs - EOF, Bad Encoding
+            _COUNT,        //< Used for bounds checking - not a token
+
+            // Errors - EOF, Bad Encoding, etc
             EndOfFile = -1,
-            BadEncoding = -2
+            BadEncoding = -2,
+            MissingEndQuotes = -3,
+            UnknownSymbol = -4
         };
+
+        static const char * Name(Token::Id id);
+
+        typedef std::basic_string<utf8::codepoint_t> Utf8String;
     public:
         Token(Token::Id id, size_t line_no, size_t column);
+        Token(const Token & source);
+        Token(Token && source);
         ~Token();
+
+        Token & operator=(const Token & source);
+        Token & operator=(Token && source);
+
+        void make_value();
+        void make_value(const Token::Utf8String & value);
+        void make_value(Token::Utf8String && value);
+        bool has_value() const;
+        Token::Utf8String * take_value();
+        Token::Utf8String & value();
+        const Token::Utf8String & value() const;
 
         Token::Id id() const;
         size_t line() const;
         size_t column() const;
+        const char * name() const;
     private:
         size_t m_Line, m_Column;
         Token::Id m_Id;
+        Utf8String * m_StringData;
     };
 
     class Lexer {
@@ -106,12 +130,19 @@ namespace tsbl {
         utf8::codepoint_t next_cp();
         utf8::codepoint_t current_cp() const;
         utf8::codepoint_t peek_cp() const;
+
+        bool identifier(utf8::codepoint_t pt) const;
+        bool identifier_start(utf8::codepoint_t pt) const;
     private:
         size_t m_CharColumn, m_Line;
         utf8::codepoint_t m_Current, m_Next;
         utf8::Reader * m_Reader;
 
-        Token::Id next_impl();
+        Token consume_identifier(const char * start_val);
+        Token consume_identifier(utf8::codepoint_t pt);
+        void consume_identifier();
+        Token consume_string(bool dbl, bool longstr);
+        Token consume_numeric();
     };
 }
 
