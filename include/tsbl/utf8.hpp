@@ -8,6 +8,11 @@
 
 namespace tsbl::utf8 {
 	typedef int32_t codepoint_t;
+	struct Codepoint {
+		static const codepoint_t EndOfFile = -1;
+		static const codepoint_t StartOfFile = -2;
+		static const codepoint_t Invalid = -3;
+	};
 	
 	enum Category : int32_t {
 		CN = 0,  //< Not assigned
@@ -74,7 +79,51 @@ namespace tsbl::utf8 {
 	};
 
 	Category category(codepoint_t);
-	std::pair<int32_t, codepoint_t> iterate(const uint8_t *string, int32_t strlen);
+	std::pair<intmax_t, codepoint_t>
+		iterate(const uint8_t *string, int32_t strlen);
+
+	class Reader {
+	public:
+		Reader();
+		virtual ~Reader();
+
+		virtual codepoint_t current() const;
+		virtual codepoint_t next() = 0;
+		virtual size_t write(codepoint_t * buffer, size_t count);
+
+		virtual bool good() const;
+		virtual bool bad() const;
+		virtual bool eof() const;
+		virtual bool bof() const;
+	protected:
+		codepoint_t m_Current;
+	};
+
+	// TODO: Look into memory mapped files instead of FILE * streams
+	class FileReader : public Reader {
+	public:
+		FileReader(const char * filename, size_t buffsize = 4096);
+		virtual ~FileReader();
+
+		virtual codepoint_t next();
+
+		virtual bool bad() const;
+	protected:
+		void * m_FilePtr; //< FILE *, handles the buffering for us
+		uint8_t * m_Buffer;
+		size_t m_BufferIndex, m_BufferSize, m_BufferData;
+	};
+
+	class StringReader : public Reader {
+	public:
+		StringReader(const uint8_t * data);
+		virtual ~StringReader();
+
+		virtual codepoint_t next();
+	protected:
+		const uint8_t * m_Data;
+		size_t m_Index;
+	};
 }
 
 #endif
