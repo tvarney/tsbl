@@ -4,6 +4,7 @@
 #define TSBL_UTF8_HPP
 
 #include <stdint.h>
+#include <utility>
 
 namespace tsbl::utf8 {
 	typedef int32_t codepoint_t;
@@ -73,6 +74,7 @@ namespace tsbl::utf8 {
 	};
 
 	Category category(codepoint_t);
+	std::pair<int32_t, codepoint_t> iterate(const uint8_t *string, int32_t strlen);
 }
 
 #endif
