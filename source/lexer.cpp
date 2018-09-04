@@ -4,25 +4,25 @@
 using namespace tsbl;
 
 Token::Token(Token::Id id, size_t line_no, size_t column) :
-	m_Line(line_no), m_Column(column), m_Id(id)
+    m_Line(line_no), m_Column(column), m_Id(id)
 { }
 Token::~Token() { }
 
 Token::Id Token::id() const {
-	return m_Id;
+    return m_Id;
 }
 
 size_t Token::line() const {
-	return m_Line;
+    return m_Line;
 }
 
 size_t Token::column() const {
-	return m_Column;
+    return m_Column;
 }
 
 Lexer::Lexer() :
-	m_CharColumn(0), m_Line(0),
-	m_Current(utf8::Codepoint::Invalid), m_Next(utf8::Codepoint::Invalid)
+    m_CharColumn(0), m_Line(0),
+    m_Current(utf8::Codepoint::Invalid), m_Next(utf8::Codepoint::Invalid)
 { }
 
 Lexer::~Lexer() { }
@@ -32,11 +32,11 @@ void Lexer::read(utf8::Reader & reader) {
 }
 
 size_t Lexer::column() const {
-	return m_CharColumn;
+    return m_CharColumn;
 }
 
 size_t Lexer::line() const {
-	return m_Line;
+    return m_Line;
 }
 
 Token Lexer::next() {
