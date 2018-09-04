@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.10)
 
 if(NOT UTF8PROC_ROOT)
   message(SEND_ERROR "UTF8PROC_ROOT Must be defined")
@@ -39,6 +39,7 @@ target_link_libraries(${LIB_NAME}
   PUBLIC
     utf8proc
 )
+target_compile_features(${LIB_NAME} PRIVATE cxx_std_17)
 
 add_executable(${EXEC_NAME} ${SOURCE_REPL})
 target_include_directories(${EXEC_NAME}
@@ -51,3 +52,4 @@ target_link_libraries(${EXEC_NAME}
     ${LIB_NAME}
     utf8proc
 )
+target_compile_features(${EXEC_NAME} PRIVATE cxx_std_17)
