@@ -2,6 +2,7 @@
 set(SOURCE_TSBL
   ./source/interpreter.cpp
   ./source/lexer.cpp
+  ./source/token.cpp
   ./source/utf8.cpp
 )
 

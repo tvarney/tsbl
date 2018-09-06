@@ -12,6 +12,11 @@ namespace tsbl::utf8 {
 		static const codepoint_t EndOfFile = -1;
 		static const codepoint_t StartOfFile = -2;
 		static const codepoint_t Invalid = -3;
+        static const codepoint_t UnexpectedStringEOL = -4;
+        static const codepoint_t UnexpectedStringEOF = -5;
+        static const codepoint_t BadEscapeHexDigit = -6;
+        static const codepoint_t UnexpectedEscapeEOL = -7;
+        static const codepoint_t UnexpectedEscapeEOF = -8;
 	};
 	
 	enum Category : int32_t {

@@ -2,6 +2,7 @@
 set(INCLUDE_TSBL
   include/tsbl/interpreter.hpp
   include/tsbl/lexer.hpp
+  include/tsbl/token.hpp
   include/tsbl/utf8.hpp
 )
 
