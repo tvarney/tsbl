@@ -41,7 +41,7 @@ const char * utf8::category_name(utf8::Category cat) {
 
 std::pair<intmax_t, utf8::codepoint_t>
 utf8::iterate(const uint8_t *string, int32_t strlen) {
-    codepoint_t codepoint = 0;
+    utf8proc_int32_t codepoint = 0;
     auto advance = utf8proc_iterate(string, strlen, &codepoint);
     return std::make_pair(advance, codepoint);
 }

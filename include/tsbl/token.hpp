@@ -15,7 +15,9 @@ namespace tsbl {
 
             // Operators
             Plus,          //< +
+            Increment,     //< ++
             Minus,         //< -
+            Decrement,     //< --
             Divide,        //< /
             Multiply,      //< *
             Power,         //< **
@@ -44,6 +46,20 @@ namespace tsbl {
             False,         //< false
             Null,          //< null
 
+            // Types
+            Int8,          //< int8
+            Int16,         //< int16
+            Int32,         //< int32
+            Int64,         //< int64
+            UInt8,         //< uint8
+            UInt16,        //< uint16
+            UInt32,        //< uint32
+            UInt64,        //< uint64
+            Float,         //< float
+            Double,        //< double
+            Char,          //< char
+            String,        //< string
+
             // Classes & Methods
             Struct,        //< struct
             Class,         //< class
@@ -53,6 +69,7 @@ namespace tsbl {
             Super,         //< super
             Def,           //< def
             Return,        //< return
+            Pure,          //< pure
 
             // Loops & Conditionals
             For,           //< for
@@ -70,9 +87,9 @@ namespace tsbl {
             Throw,         //< throw
 
             // lvalues & rvalues
-            Integer,       //< [0-9]+
-            Real,          //< [0-9]+\.[0-9]*([eE][0-9]+)?
-            String,        //< ("")|('')
+            IntegerValue,  //< [0-9]+
+            RealValue,     //< [0-9]+\.[0-9]*([eE][0-9]+)?
+            StringValue,   //< ("")|('')
             LongString,    //< (""" """)|(''' ''')
             Identifier,    //< [_a-zA-Z][_a-zA-Z0-9]*  <-- Use character categories
 
@@ -91,9 +108,10 @@ namespace tsbl {
             UnexpectedEscapeEOF = -8  //< An EOF was encountered while parsing a \x, \u, or \U escape
         };
 
-        typedef std::basic_string<utf8::codepoint_t> U32String;
+        typedef std::basic_string<char32_t> U32String;
 
         static const char * Name(Token::Id id);
+        static const char32_t * Name32(Token::Id id);
 
         /**
          * \brief Check if the given Token::Id value holds a string

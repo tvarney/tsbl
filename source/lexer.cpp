@@ -51,8 +51,16 @@ Token Lexer::next() {
         m_Line += 1;
         return Token(Token::Id::NewLine, m_Line, m_CharColumn);
     case '+':
+        if (peek_cp() == '+') {
+            next_cp();
+            return Token(Token::Id::Increment, m_Line, m_StartColumn);
+        }
         return Token(Token::Id::Plus, m_Line, m_CharColumn);
     case '-':
+        if (peek_cp() == '-') {
+            next_cp();
+            return Token(Token::Id::Decrement, m_Line, m_StartColumn);
+        }
         return Token(Token::Id::Minus, m_Line, m_CharColumn);
     case '*':
         if (peek_cp() == '*') {
@@ -108,39 +116,42 @@ Token Lexer::next() {
             return Token(Token::Id::LShift, m_Line, m_StartColumn);
         }
         return Token(Token::Id::Less, m_Line, m_CharColumn);
+    case 'p':
+        switch (peek_cp()) {
+        case 'u':
+            switch (peek_next_cp()) {
+            case 'r':
+                return consume_keyword(Token::Id::Pure, 3);
+            case 'b':
+                return consume_keyword(Token::Id::Public, 3);
+            default:
+                return consume_identifier(U"pu");
+            }
+        case 'r':
+            return consume_keyword(Token::Id::Protected, 2);
+        default:
+            return consume_identifier(U"p");
+        }
+        break;
     case 't':
-        // Possible values: try, throw
-        if (peek_cp() == 'r') {
-            next_cp();
-            if (peek_cp() == 'y') {
-                next_cp();
-                if (identifier(peek_cp())) {
-                    return consume_identifier("try");
+        switch (peek_cp()) {
+        case 'r':
+            switch (peek_next_cp()) {
+            case 'y':
+                if (identifier(peek_next_cp())) {
+                    return consume_identifier(U"try");
                 }
                 return Token(Token::Id::Try, m_Line, m_StartColumn);
+            case 'u':
+                return consume_keyword(Token::Id::True, 3);
+            default:
+                return consume_identifier(U"tr");
             }
-            return consume_identifier("tr");
+        case 'h':
+            return consume_keyword(Token::Id::Throw, 2);
+        default:
+            return consume_identifier(U"t");
         }
-        else if (peek_cp() == 'h') {
-            next_cp();
-            if (peek_cp() == 'r') {
-                next_cp();
-                if (peek_cp() == 'o') {
-                    next_cp();
-                    if (peek_cp() == 'w') {
-                        next_cp();
-                        if (identifier(peek_cp())) {
-                            return consume_identifier("throw");
-                        }
-                        return Token(Token::Id::Throw, m_Line, m_StartColumn);
-                    }
-                    return consume_identifier("thro");
-                }
-                return consume_identifier("thr");
-            }
-            return consume_identifier("th");
-        }
-        return consume_identifier("t");
     default:
         if (identifier_start(m_Current)) {
             return consume_identifier(m_Current);
@@ -169,21 +180,45 @@ utf8::codepoint_t Lexer::peek_cp() const {
     return m_Next;
 }
 
-Token Lexer::consume_identifier(const char * start_val) {
-    size_t length;
-    for (length = 0; start_val[length] != '\0'; ++length);
+utf8::codepoint_t Lexer::peek_next_cp() {
+    next_cp();
+    return m_Next;
+}
 
-    Token token(Token::Id::Identifier, line(), column() - (length - 1));
-    for (size_t i = 0; i < length; ++i) {
-        token.string() += (utf8::codepoint_t)(start_val[i]);
+Token Lexer::consume_keyword(Token::Id id, size_t start_idx) {
+    const char32_t * keyword = Token::Name32(id);
+    for (size_t i = start_idx; keyword[i] != '\0'; ++i) {
+        if (peek_cp() == keyword[i]) {
+            next_cp();
+        }
+        else {
+            // If we don't match the next expected character, treat the token
+            // as an identifier.
+            Token token(Token::Id::Identifier, line(), m_StartColumn);
+            token.string() = std::move(Token::U32String(keyword, i - 1));
+            consume_identifier(token);
+            return token;
+        }
     }
+    
+    // Check if the next codepoint is still an identifier codepoint
+    if (identifier(peek_next_cp())) {
+        return consume_identifier(keyword);
+    }
+    return Token(id, line(), m_StartColumn);
+}
+
+Token Lexer::consume_identifier(const char32_t * start_val) {
+    Token::U32String tstr(start_val);
+    Token token(Token::Id::Identifier, line(), m_StartColumn);
+    token.string() = std::move(tstr);
     consume_identifier(token);
     
     return token;
 }
 
 Token Lexer::consume_identifier(utf8::codepoint_t pt) {
-    Token token(Token::Id::Identifier, line(), column() - 1);
+    Token token(Token::Id::Identifier, line(), m_StartColumn);
     token.string() += pt;
     consume_identifier(token);
     return token;
@@ -277,13 +312,13 @@ Token Lexer::consume_numeric() {
     uint64_t whole = 0;
     uint64_t fractional = 0;
     uint64_t exponent = 0;
-    Token::Id t_id = Token::Id::Integer;
+    Token::Id t_id = Token::Id::IntegerValue;
     while (m_Next >= '0' && m_Next <= '9') {
         whole = whole * 10 + (m_Next - '0');
         next_cp();
     }
     if (m_Next = '.') {
-        t_id = Token::Id::Real;
+        t_id = Token::Id::RealValue;
         next_cp();
         while (m_Next >= '0' && m_Next <= '9') {
             fractional = fractional * 10 + (m_Next - '0');
@@ -291,7 +326,7 @@ Token Lexer::consume_numeric() {
         }
     }
     if (m_Next == 'e' || m_Next == 'E') {
-        t_id = Token::Id::Real;
+        t_id = Token::Id::RealValue;
         next_cp();
         while (m_Next >= '0' && m_Next <= '9') {
             exponent = exponent * 10 + (m_Next - '0');

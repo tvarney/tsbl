@@ -7,7 +7,7 @@
 #include <utility>
 
 namespace tsbl::utf8 {
-	typedef int32_t codepoint_t;
+	typedef char32_t codepoint_t;
 	struct Codepoint {
 		static const codepoint_t EndOfFile = -1;
 		static const codepoint_t StartOfFile = -2;

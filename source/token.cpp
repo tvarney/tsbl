@@ -4,6 +4,7 @@
 using namespace tsbl;
 
 extern const char * _g_TokenName[];
+extern const char32_t * _g_TokenName32[];
 
 /**
  * \brief Get the string value of the Token::Id
@@ -26,6 +27,25 @@ const char * Token::Name(Token::Id id) {
 }
 
 /**
+ * \brief Get the char32_t * name of the Token::Id
+ * 
+ * \param id The Token::Id value to get the name of
+ * \return A constant string with the name of the Token
+ */
+const char32_t * Token::Name32(Token::Id id) {
+    if (id < 0) {
+        if (id == Token::Id::EndOfFile) {
+            return U"EOF";
+        }
+        return U"BadEncoding";
+    }
+    if (id >= Token::Id::_COUNT) {
+        return U"BadTokenId";
+    }
+    return _g_TokenName32[id];
+}
+
+/**
  * \brief Create a new Token
  * 
  * \param id The Token::Id of the new Token
@@ -40,10 +60,10 @@ Token::Token(Token::Id id, size_t line_no, size_t column) :
     case Token::Id::LongString:
         m_Data.str_ptr = new Token::U32String();
         break;
-    case Token::Id::Real:
+    case Token::Id::RealValue:
         m_Data.real = 0.0;
         break;
-    case Token::Id::Integer:
+    case Token::Id::IntegerValue:
     default:
         m_Data.integer = 0;
     }
@@ -65,10 +85,10 @@ Token::Token(const Token & source) :
     case Token::Id::LongString:
         m_Data.str_ptr = new Token::U32String(*source.m_Data.str_ptr);
         break;
-    case Token::Id::Real:
+    case Token::Id::RealValue:
         m_Data.real = source.m_Data.real;
         break;
-    case Token::Id::Integer:
+    case Token::Id::IntegerValue:
         m_Data.integer = source.m_Data.integer;
         break;
     default:
@@ -93,10 +113,10 @@ Token::Token(Token && source) :
         m_Data.str_ptr = source.m_Data.str_ptr;
         source.m_Data.str_ptr = nullptr;
         break;
-    case Token::Id::Integer:
+    case Token::Id::IntegerValue:
         m_Data.integer = source.m_Data.integer;
         break;
-    case Token::Id::Real:
+    case Token::Id::RealValue:
         m_Data.real = source.m_Data.real;
         break;
     default:
@@ -145,13 +165,13 @@ Token & Token::operator=(const Token & source) {
             m_Data.str_ptr = new Token::U32String(*source.m_Data.str_ptr);
         }
         break;
-    case Token::Id::Integer:
+    case Token::Id::IntegerValue:
         if(Token::IsString(old_id) && m_Data.str_ptr != nullptr) {
             delete m_Data.str_ptr;
         }
         m_Data.integer = source.m_Data.integer;
         break;
-    case Token::Id::Real:
+    case Token::Id::RealValue:
         if(Token::IsString(old_id) && m_Data.str_ptr != nullptr) {
             delete m_Data.str_ptr;
         }
@@ -190,13 +210,13 @@ Token & Token::operator=(Token && source) {
             source.m_Data.str_ptr = nullptr;
         }
         break;
-    case Token::Id::Real:
+    case Token::Id::RealValue:
         if (Token::IsString(old_id) && m_Data.str_ptr != nullptr) {
             delete m_Data.str_ptr;
         }
         m_Data.real = source.m_Data.real;
         break;
-    case Token::Id::Integer:
+    case Token::Id::IntegerValue:
         if (Token::IsString(old_id) && m_Data.str_ptr != nullptr) {
             delete m_Data.str_ptr;
         }
@@ -252,16 +272,41 @@ const char * Token::name() const {
 static const char * _g_TokenName[] = {
     "\\n",
 
-    "+", "-", "/", "*", "**", "(", ")", "[", "]", "{", "}", ".", "=",
-    "!", "==", "!=", ">", ">=", "<", "<=", ">>", "<<",
+    "+", "++", "-", "--", "/", "*", "**", "(", ")", "[", "]", "{", "}", ".",
+    "=", "!", "==", "!=", ">", ">=", "<", "<=", ">>", "<<",
 
     "true", "false", "null",
 
+    "int8", "int16", "int32", "int64", "uint8", "uint16", "uint32", "uint64",
+    "float", "double", "char", "string",
+
     "struct", "class", "public", "private", "protected", "super", "def",
-    "return", "for", "while", "if", "else", "elif", "switch", "break",
+    "return", "pure", "for", "while", "if", "else", "elif", "switch", "break",
     "continue",
 
     "try", "catch", "throw",
 
     "int", "float", "string", "docstring", "identifier"
+};
+
+static const char32_t * _g_TokenName32[] = {
+    U"\\n",
+
+    U"+", U"++", U"-", U"--", U"/", U"*", U"**", U"(", U")", U"[", U"]", U"{",
+    U"}", U".", U"=", U"!", U"==", U"!=", U">", U">=", U"<", U"<=", U">>",
+    U"<<",
+
+    U"true", U"false", U"null",
+
+    U"int8", U"int16", U"int32", U"int64", U"uint8", U"uint16", U"uint32",
+    U"uint64",
+    U"float", U"double", U"char", U"string",
+
+    U"struct", U"class", U"public", U"private", U"protected", U"super", U"def",
+    U"return", U"pure", U"for", U"while", U"if", U"else", U"elif", U"switch", U"break",
+    U"continue",
+
+    U"try", U"catch", U"throw",
+
+    U"int", U"float", U"string", U"docstring", U"identifier"
 };

@@ -23,6 +23,7 @@ namespace tsbl {
         utf8::codepoint_t next_cp();
         utf8::codepoint_t current_cp() const;
         utf8::codepoint_t peek_cp() const;
+        utf8::codepoint_t peek_next_cp();
 
         bool identifier(utf8::codepoint_t pt) const;
         bool identifier_start(utf8::codepoint_t pt) const;
@@ -31,7 +32,9 @@ namespace tsbl {
         utf8::codepoint_t m_Current, m_Next;
         utf8::Reader * m_Reader;
 
-        Token consume_identifier(const char * start_val);
+        Token consume_keyword(Token::Id id, size_t start_idx);
+
+        Token consume_identifier(const char32_t * start_val);
         Token consume_identifier(utf8::codepoint_t pt);
         void consume_identifier(Token & token);
         Token consume_string(bool dbl, bool longstr);
