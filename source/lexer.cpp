@@ -1,6 +1,8 @@
 
 #include "tsbl/lexer.hpp"
 
+#include <cmath>
+
 using namespace tsbl;
 
 extern const bool _g_CategoryIdentifier[];
@@ -124,6 +126,15 @@ Token Lexer::next() {
             return Token(Token::Id::LShift, m_Line, m_StartColumn);
         }
         return Token(Token::Id::Less, m_Line, m_CharColumn);
+    case 'd':
+        switch (peek_cp()) {
+        case 'e':
+            return consume_keyword(Token::Id::Def, 2);
+        case 'o':
+            return consume_keyword(Token::Id::Double, 2);
+        default:
+            return consume_identifier(U"d");
+        }
     case 'p':
         switch (peek_cp()) {
         case 'u':
@@ -160,6 +171,17 @@ Token Lexer::next() {
         default:
             return consume_identifier(U"t");
         }
+    case '0':
+    case '1':
+    case '2':
+    case '3':
+    case '4':
+    case '5':
+    case '6':
+    case '7':
+    case '8':
+    case '9':
+        return consume_numeric();
     default:
         if (identifier_start(m_Current)) {
             return consume_identifier(m_Current);
@@ -201,7 +223,7 @@ Token Lexer::consume_keyword(Token::Id id, size_t start_idx) {
             // If we don't match the next expected character, treat the token
             // as an identifier.
             Token token(Token::Id::Identifier, line(), m_StartColumn);
-            token.string() = std::move(Token::U32String(keyword, i - 1));
+            token.string() = std::move(Token::U32String(keyword, i));
             consume_identifier(token);
             return token;
         }
@@ -315,23 +337,28 @@ Token Lexer::consume_string(bool dbl, bool longstr) {
 }
 
 Token Lexer::consume_numeric() {
+    bool exponent_present = false;
     uint64_t whole = 0;
     uint64_t fractional = 0;
+    uint64_t fractional_size = 1;
     uint64_t exponent = 0;
     Token::Id t_id = Token::Id::IntegerValue;
-    while (m_Next >= '0' && m_Next <= '9') {
-        whole = whole * 10 + (m_Next - '0');
+    Token tok;
+    while (m_Current >= '0' && m_Current <= '9') {
+        whole = whole * 10 + (m_Current - '0');
         next_cp();
     }
-    if (m_Next = '.') {
+    if (m_Current = '.') {
         t_id = Token::Id::RealValue;
         next_cp();
-        while (m_Next >= '0' && m_Next <= '9') {
-            fractional = fractional * 10 + (m_Next - '0');
+        while (m_Current >= '0' && m_Current <= '9') {
+            fractional = fractional * 10 + (m_Current - '0');
+            fractional_size *= 10;
             next_cp();
         }
     }
-    if (m_Next == 'e' || m_Next == 'E') {
+    if (m_Current == 'e' || m_Current == 'E') {
+        exponent = true;
         t_id = Token::Id::RealValue;
         next_cp();
         while (m_Next >= '0' && m_Next <= '9') {
@@ -339,7 +366,25 @@ Token Lexer::consume_numeric() {
             next_cp();
         }
     }
-    return Token(Token::Id::Invalid, 0, 0);
+
+    // TODO: Type postfix specifiers
+    // TODO: Error on invalid continuation
+
+    tok = Token(t_id, m_StartLine, m_StartColumn);
+    if (t_id == Token::Id::IntegerValue) {
+        tok.integer() = whole;
+    }
+    else {
+        // If we didn't get a fractional value, we have a 0 for fractional and
+        // 1 for fractional_size
+        double d = ((double)whole);
+        d += ((double)fractional) / ((double)fractional_size);
+        if (exponent_present) {
+            d = std::pow(d, exponent);
+        }
+        tok.real() = d;
+    }
+    return tok;
 }
 
 utf8::codepoint_t Lexer::consume_escape(size_t hex_digits) {

@@ -258,10 +258,20 @@ Token::U32String & Token::string() {
 const Token::U32String & Token::string() const {
     return *m_Data.str_ptr;
 }
-uint64_t Token::integer() const {
+
+uint64_t & Token::integer() {
     return m_Data.integer;
 }
-double Token::real() const {
+
+const uint64_t & Token::integer() const {
+    return m_Data.integer;
+}
+
+double & Token::real() {
+    return m_Data.real;
+}
+
+const double & Token::real() const {
     return m_Data.real;
 }
 

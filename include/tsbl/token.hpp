@@ -142,8 +142,10 @@ namespace tsbl {
 
         Token::U32String & string();
         const Token::U32String & string() const;
-        uint64_t integer() const;
-        double real() const;
+        uint64_t & integer();
+        const uint64_t & integer() const;
+        double & real();
+        const double & real() const;
 
         Token::Id id() const;
         size_t line() const;
