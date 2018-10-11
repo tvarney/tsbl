@@ -168,6 +168,7 @@ Token & Token::operator=(const Token & source) {
     m_Column = source.column();
     m_Id = source.id();
     switch (m_Id) {
+    case Token::Id::Identifier:
     case Token::Id::String:
     case Token::Id::LongString:
         if(Token::IsString(old_id) && m_Data.str_ptr != nullptr) {
@@ -210,6 +211,7 @@ Token & Token::operator=(Token && source) {
     m_Column = source.column();
     m_Id = source.id();
     switch (m_Id) {
+    case Token::Id::Identifier:
     case Token::Id::String:
     case Token::Id::LongString:
         if(Token::IsString(old_id)) {
