@@ -46,6 +46,15 @@ const char32_t * Token::Name32(Token::Id id) {
 }
 
 /**
+ * \breif Create a new default token
+ */
+Token::Token() :
+    m_Line(0), m_Column(0), m_Id(Token::Id::Invalid)
+{
+    m_Data.integer = 0;
+}
+
+/**
  * \brief Create a new Token
  * 
  * \param id The Token::Id of the new Token
@@ -56,6 +65,7 @@ Token::Token(Token::Id id, size_t line_no, size_t column) :
     m_Line(line_no), m_Column(column), m_Id(id)
 {
     switch (id) {
+    case Token::Id::Identifier:
     case Token::Id::String:
     case Token::Id::LongString:
         m_Data.str_ptr = new Token::U32String();
@@ -81,6 +91,7 @@ Token::Token(const Token & source) :
     m_Line(source.line()), m_Column(source.column()), m_Id(source.id())
 {
     switch (m_Id) {
+    case Token::Id::Identifier:
     case Token::Id::String:
     case Token::Id::LongString:
         m_Data.str_ptr = new Token::U32String(*source.m_Data.str_ptr);
@@ -108,6 +119,7 @@ Token::Token(Token && source) :
     m_Line(source.line()), m_Column(source.column()), m_Id(source.id())
 {
     switch (m_Id) {
+    case Token::Id::Identifier:
     case Token::Id::String:
     case Token::Id::LongString:
         m_Data.str_ptr = source.m_Data.str_ptr;

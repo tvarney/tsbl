@@ -129,6 +129,7 @@ namespace tsbl {
         }
 
     public:
+        Token();
         Token(Token::Id id, size_t line_no, size_t column);
         Token(const Token & source);
         Token(Token && source);

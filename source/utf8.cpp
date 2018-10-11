@@ -1,4 +1,5 @@
 
+#include <iostream>
 #include "tsbl/utf8.hpp"
 
 #include <cstdio>
@@ -103,6 +104,7 @@ utf8::FileReader::FileReader(const char * filename, size_t buffsize) :
         std::setvbuf((FILE *)m_FilePtr, nullptr, _IONBF, 0);
     }
     else {
+        std::cout << "Could not open file " << filename << std::endl;
         m_Current = utf8::Codepoint::EndOfFile;
     }
 }

@@ -15,6 +15,7 @@ Lexer::~Lexer() { }
 
 void Lexer::read(utf8::Reader & reader) {
     m_Reader = &reader;
+    m_Next = m_Reader->next();
 }
 
 size_t Lexer::column() const {
@@ -35,6 +36,13 @@ bool Lexer::identifier_start(utf8::codepoint_t pt) const {
 
 Token Lexer::next() {
     utf8::codepoint_t codepoint = next_cp();
+
+    // Consume all whitespace which is not a new line - category is ZS
+    while (utf8::category(codepoint) == utf8::Category::ZS) {
+        m_CharColumn += 1;
+        codepoint = next_cp();
+    }
+
     m_StartLine = m_Line;
     m_StartColumn = m_CharColumn;
 

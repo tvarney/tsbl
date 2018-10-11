@@ -3,58 +3,34 @@
 
 #include <iostream>
 
+#include "tsbl/lexer.hpp"
 #include "tsbl/utf8.hpp"
 
-using namespace tsbl::utf8;
+using namespace tsbl;
 
-void output(codepoint_t pt) {
-    Category cat = category(pt);
-    std::cout << "Codepoint " << pt << ":" << std::endl
-        << "  Category: " << category_name(cat) << " [" << category_id(cat) << "|" << cat << "]" << std::endl;
+const char * _g_default_string_stream = "+ - *\ntrue try try_it\n";
+
+void lex_data(utf8::Reader & reader) {
+    tsbl::Lexer lexer;
+    lexer.read(reader);
+    Token tok;
+    std::cout << "Token Stream:" << std::endl;
+    while ((tok = lexer.next()).id() >= 0) {
+        std::cout << "  " << Token::Name(tok.id()) << std::endl;
+    }
 }
 
 int main(int argc, char **argv) {
-    for (int i = 1; i < argc; ++i) {
-        int codepoint = atoi(argv[i]);
-        if (codepoint > 0) {
-            output(codepoint);
-        }
-        else {
-            char * arg = argv[i];
-            while (*arg != '\0') {
-                if (*arg == '\\') {
-                    arg += 1;
-                    switch (*arg) {
-                    case 'a':
-                        codepoint = '\a';
-                        break;
-                    case 'b':
-                        codepoint = '\b';
-                        break;
-                    case 'f':
-                        codepoint = '\f';
-                        break;
-                    case 'n':
-                        codepoint = '\n';
-                        break;
-                    case 'r':
-                        codepoint = '\r';
-                        break;
-                    case 't':
-                        codepoint = '\t';
-                        break;
-                    case 'v':
-                        codepoint = '\v';
-                        break;
-                    }
-                }
-                else {
-                    codepoint = *arg;
-                }
-                arg += 1;
-                output(codepoint);
-            }
-        }
+    if (argc <= 1) {
+        std::cout << "Running program with default string buffer" << std::endl;
+        utf8::StringReader sr((uint8_t *)_g_default_string_stream);
+        lex_data(sr);
     }
+    else {
+        std::cout << "Running program with file " << argv[1] << std::endl;
+        utf8::FileReader fr(argv[1]);
+        lex_data(fr);
+    }
+    
     return 0;
 }
