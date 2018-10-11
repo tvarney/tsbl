@@ -194,12 +194,10 @@ utf8::codepoint_t Lexer::peek_next_cp() {
 }
 
 Token Lexer::consume_keyword(Token::Id id, size_t start_idx) {
+    utf8::codepoint_t pt;
     const char32_t * keyword = Token::Name32(id);
     for (size_t i = start_idx; keyword[i] != '\0'; ++i) {
-        if (peek_cp() == keyword[i]) {
-            next_cp();
-        }
-        else {
+        if ((pt = peek_next_cp()) != keyword[i]) {
             // If we don't match the next expected character, treat the token
             // as an identifier.
             Token token(Token::Id::Identifier, line(), m_StartColumn);
